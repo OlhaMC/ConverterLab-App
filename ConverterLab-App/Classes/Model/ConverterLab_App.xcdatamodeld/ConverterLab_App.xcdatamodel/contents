@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="13F34" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Bank" representedClassName="BankObject" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="bankId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="link" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="phone" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="cityOfBank" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="City" inverseName="banksInCity" inverseEntity="City" syncable="YES"/>
+        <relationship name="exRatesOfCurrencies" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Currency" inverseName="exchangeRateInBank" inverseEntity="Currency" syncable="YES"/>
+        <relationship name="regionOfBank" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Region" inverseName="banksInRegion" inverseEntity="Region" syncable="YES"/>
+    </entity>
+    <entity name="City" representedClassName="CityObject" syncable="YES">
+        <attribute name="cityId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="banksInCity" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Bank" inverseName="cityOfBank" inverseEntity="Bank" syncable="YES"/>
+    </entity>
+    <entity name="Currency" representedClassName="CurrencyObject" syncable="YES">
+        <attribute name="abbreviation" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="ask" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="bid" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="exchangeRateInBank" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Bank" inverseName="exRatesOfCurrencies" inverseEntity="Bank" syncable="YES"/>
+    </entity>
+    <entity name="Region" representedClassName="RegionObject" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="regionId" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="banksInRegion" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Bank" inverseName="regionOfBank" inverseEntity="Bank" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Bank" positionX="-63" positionY="-18" width="128" height="165"/>
+        <element name="City" positionX="-54" positionY="27" width="128" height="90"/>
+        <element name="Currency" positionX="-27" positionY="72" width="128" height="103"/>
+        <element name="Region" positionX="-36" positionY="36" width="128" height="88"/>
+    </elements>
+</model>

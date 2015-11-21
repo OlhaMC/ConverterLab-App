@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="a2t-gm-mco">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Main View Controller-->
+        <scene sceneID="dYv-ze-d1S">
+            <objects>
+                <tableViewController storyboardIdentifier="MainView" title="Main View Controller" id="stU-Pq-Gl6" customClass="MainViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" rowHeight="44" sectionHeaderHeight="1" sectionFooterHeight="10" id="Px1-Wa-04E">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="tileCell" rowHeight="197" id="7k3-E4-WK5" customClass="VisitCardCell">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="7k3-E4-WK5" id="Lco-F7-5De">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" text="Bank Title" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g6L-g2-XDb">
+                                            <rect key="frame" x="20" y="15" width="88" height="40"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="40" id="Udm-YZ-4rV"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" text="Region and City" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yeK-9D-u8n">
+                                            <rect key="frame" x="20" y="60" width="200" height="20"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="200" id="bkG-l9-jFD"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" text="Phone Number" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iRa-V9-0PP">
+                                            <rect key="frame" x="481" y="86" width="97" height="21"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="21" id="cSq-g6-WIC"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="751" verticalHuggingPriority="751" text="Address" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FJi-6j-NNi">
+                                            <rect key="frame" x="525" y="108" width="53" height="21"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="21" id="uIK-U8-K3H"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="hne-lc-3tg">
+                                            <rect key="frame" x="0.0" y="152" width="600" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="44" id="JYu-nd-ges"/>
+                                            </constraints>
+                                            <items>
+                                                <barButtonItem style="plain" id="8Vg-HQ-7AL">
+                                                    <button key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" enabled="NO" highlighted="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="tailTruncation" id="3tc-nV-jeM">
+                                                        <rect key="frame" x="16" y="11" width="30" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <state key="normal" title="Link" image="ic_link_unactive.png">
+                                                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                        </state>
+                                                        <state key="highlighted" image="ic_link_floating.png"/>
+                                                    </button>
+                                                </barButtonItem>
+                                                <barButtonItem style="plain" systemItem="flexibleSpace" id="poe-sm-vMB"/>
+                                                <barButtonItem style="plain" id="hXH-YX-LrI">
+                                                    <button key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" enabled="NO" highlighted="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" id="DhI-ZE-HK6">
+                                                        <rect key="frame" x="195" y="11" width="30" height="23"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <state key="normal" title="Map" image="ic_mark_unactive.png">
+                                                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                        </state>
+                                                        <state key="highlighted" image="ic_mark_active.png"/>
+                                                    </button>
+                                                </barButtonItem>
+                                                <barButtonItem style="plain" systemItem="flexibleSpace" id="fjp-du-7ia"/>
+                                                <barButtonItem style="plain" id="4bO-KJ-i3B">
+                                                    <button key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" enabled="NO" highlighted="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" id="z6Q-we-EcY">
+                                                        <rect key="frame" x="387" y="11" width="30" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <state key="normal" title="Call" image="ic_phone_unactive.png">
+                                                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                        </state>
+                                                        <state key="highlighted" image="ic_phone_active.png"/>
+                                                    </button>
+                                                </barButtonItem>
+                                                <barButtonItem style="plain" systemItem="flexibleSpace" id="Yz6-9h-Hm0"/>
+                                                <barButtonItem style="plain" id="DS0-gz-xbv">
+                                                    <button key="customView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" enabled="NO" highlighted="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="characterWrap" id="bq7-G4-Ot8">
+                                                        <rect key="frame" x="551" y="11" width="30" height="22"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <state key="normal" title="Details" image="ic_dots_unactive.png">
+                                                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                        </state>
+                                                        <state key="highlighted" image="ic_dots_active.png"/>
+                                                    </button>
+                                                </barButtonItem>
+                                            </items>
+                                            <color key="barTintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                        </toolbar>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="hne-lc-3tg" firstAttribute="top" relation="greaterThanOrEqual" secondItem="yeK-9D-u8n" secondAttribute="bottom" priority="750" constant="10" id="5R2-Vc-Duy"/>
+                                        <constraint firstItem="yeK-9D-u8n" firstAttribute="top" secondItem="Lco-F7-5De" secondAttribute="top" constant="60" id="5if-z7-EuF"/>
+                                        <constraint firstAttribute="trailing" secondItem="hne-lc-3tg" secondAttribute="trailing" id="C1n-Ey-ObM"/>
+                                        <constraint firstItem="hne-lc-3tg" firstAttribute="leading" secondItem="Lco-F7-5De" secondAttribute="leading" id="Ddg-aZ-LjA"/>
+                                        <constraint firstAttribute="trailing" secondItem="FJi-6j-NNi" secondAttribute="trailing" constant="22" id="HZ9-gy-v6G"/>
+                                        <constraint firstItem="iRa-V9-0PP" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Lco-F7-5De" secondAttribute="top" priority="750" constant="125" id="Me8-Lz-c55"/>
+                                        <constraint firstItem="g6L-g2-XDb" firstAttribute="top" secondItem="Lco-F7-5De" secondAttribute="top" constant="15" id="VED-r6-ObJ"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="hne-lc-3tg" secondAttribute="bottom" constant="-8" id="XGh-HX-F4l"/>
+                                        <constraint firstItem="g6L-g2-XDb" firstAttribute="leading" secondItem="Lco-F7-5De" secondAttribute="leading" constant="20" id="ZL0-Tn-UJc"/>
+                                        <constraint firstItem="FJi-6j-NNi" firstAttribute="leading" relation="lessThanOrEqual" secondItem="Lco-F7-5De" secondAttribute="leading" priority="750" constant="351" id="ZLl-jm-heb"/>
+                                        <constraint firstAttribute="trailing" relation="lessThanOrEqual" secondItem="g6L-g2-XDb" secondAttribute="trailing" priority="750" constant="288" id="b8j-Vu-Z1z"/>
+                                        <constraint firstItem="FJi-6j-NNi" firstAttribute="top" secondItem="iRa-V9-0PP" secondAttribute="bottom" constant="1" id="co4-hQ-igz"/>
+                                        <constraint firstItem="hne-lc-3tg" firstAttribute="top" secondItem="FJi-6j-NNi" secondAttribute="bottom" constant="23" id="k1B-kg-uzT"/>
+                                        <constraint firstItem="yeK-9D-u8n" firstAttribute="leading" secondItem="Lco-F7-5De" secondAttribute="leading" constant="20" id="pIw-Cq-caM"/>
+                                        <constraint firstAttribute="trailing" secondItem="iRa-V9-0PP" secondAttribute="trailing" constant="22" id="vcv-LY-Kcz"/>
+                                        <constraint firstItem="iRa-V9-0PP" firstAttribute="leading" relation="lessThanOrEqual" secondItem="Lco-F7-5De" secondAttribute="leading" priority="750" constant="458" id="wk9-9U-B7g"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="addressTitle" destination="FJi-6j-NNi" id="b5k-NU-zDl"/>
+                                    <outlet property="callButton" destination="z6Q-we-EcY" id="xYG-Xh-jOw"/>
+                                    <outlet property="cityTitle" destination="yeK-9D-u8n" id="NL9-Kp-ddd"/>
+                                    <outlet property="detailsButton" destination="bq7-G4-Ot8" id="urH-tw-VeJ"/>
+                                    <outlet property="linkButton" destination="3tc-nV-jeM" id="l37-D0-vA3"/>
+                                    <outlet property="mapButton" destination="DhI-ZE-HK6" id="WhQ-1y-urh"/>
+                                    <outlet property="nameTitle" destination="g6L-g2-XDb" id="1s9-o7-qkO"/>
+                                    <outlet property="phoneNumberTitle" destination="iRa-V9-0PP" id="yk4-PU-AXN"/>
+                                    <outlet property="toolBar" destination="hne-lc-3tg" id="nnd-sQ-PEv"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="stU-Pq-Gl6" id="rHV-Ip-KVb"/>
+                            <outlet property="delegate" destination="stU-Pq-Gl6" id="jKb-wq-RGW"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Converter Lab" id="o7s-bB-vyd"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eQZ-lD-cvb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="255" y="213"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="3rG-nQ-zU4">
+            <objects>
+                <navigationController id="a2t-gm-mco" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" id="EhT-vE-cjN">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="stU-Pq-Gl6" kind="relationship" relationship="rootViewController" id="cbI-4t-8oW"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Gel-57-o9x" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-422" y="117"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="ic_dots_active.png" width="28" height="8"/>
+        <image name="ic_dots_unactive.png" width="28" height="8"/>
+        <image name="ic_link_floating.png" width="24" height="12"/>
+        <image name="ic_link_unactive.png" width="26" height="14"/>
+        <image name="ic_mark_active.png" width="16" height="22"/>
+        <image name="ic_mark_unactive.png" width="16" height="22"/>
+        <image name="ic_phone_active.png" width="20" height="20"/>
+        <image name="ic_phone_unactive.png" width="20" height="20"/>
+    </resources>
+</document>
