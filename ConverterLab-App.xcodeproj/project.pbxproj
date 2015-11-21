@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84031E931C00C23C003ADEC3 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84031E921C00C23C003ADEC3 /* WebViewController.m */; };
+		84031E951C00E0D9003ADEC3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84031E941C00E0D9003ADEC3 /* CoreLocation.framework */; };
+		84031E991C00E1ED003ADEC3 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84031E981C00E1ED003ADEC3 /* MapViewController.m */; };
 		84A3D6F81BFF2B7100A30493 /* _DS_Store in Resources */ = {isa = PBXBuildFile; fileRef = 84A3D6C41BFF2B7100A30493 /* _DS_Store */; };
 		84A3D6F91BFF2B7100A30493 /* ic_arrow_down.png in Resources */ = {isa = PBXBuildFile; fileRef = 84A3D6C51BFF2B7100A30493 /* ic_arrow_down.png */; };
 		84A3D6FA1BFF2B7100A30493 /* ic_arrow_down@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 84A3D6C61BFF2B7100A30493 /* ic_arrow_down@2x.png */; };
@@ -87,6 +90,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		84031E911C00C23C003ADEC3 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
+		84031E921C00C23C003ADEC3 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
+		84031E941C00E0D9003ADEC3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		84031E971C00E1ED003ADEC3 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
+		84031E981C00E1ED003ADEC3 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		84A3D6C41BFF2B7100A30493 /* _DS_Store */ = {isa = PBXFileReference; lastKnownFileType = file; path = _DS_Store; sourceTree = "<group>"; };
 		84A3D6C51BFF2B7100A30493 /* ic_arrow_down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_arrow_down.png; sourceTree = "<group>"; };
 		84A3D6C61BFF2B7100A30493 /* ic_arrow_down@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_arrow_down@2x.png"; sourceTree = "<group>"; };
@@ -173,6 +181,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84031E951C00E0D9003ADEC3 /* CoreLocation.framework in Frameworks */,
 				84B231C21BFA771F001608D7 /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -187,6 +196,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		84031E901C00C207003ADEC3 /* WebViewController */ = {
+			isa = PBXGroup;
+			children = (
+				84031E911C00C23C003ADEC3 /* WebViewController.h */,
+				84031E921C00C23C003ADEC3 /* WebViewController.m */,
+			);
+			path = WebViewController;
+			sourceTree = "<group>";
+		};
+		84031E961C00E1C3003ADEC3 /* MapViewController */ = {
+			isa = PBXGroup;
+			children = (
+				84031E971C00E1ED003ADEC3 /* MapViewController.h */,
+				84031E981C00E1ED003ADEC3 /* MapViewController.m */,
+			);
+			path = MapViewController;
+			sourceTree = "<group>";
+		};
 		84A3D6C31BFF2B7100A30493 /* icons */ = {
 			isa = PBXGroup;
 			children = (
@@ -275,6 +302,7 @@
 				84B231A81BFA76DC001608D7 /* Images.xcassets */,
 				84B231AA1BFA76DC001608D7 /* LaunchScreen.xib */,
 				84B231981BFA76DC001608D7 /* Supporting Files */,
+				84031E941C00E0D9003ADEC3 /* CoreLocation.framework */,
 				84B231C11BFA771F001608D7 /* MapKit.framework */,
 			);
 			path = "ConverterLab-App";
@@ -309,6 +337,8 @@
 		84B231C31BFA78FF001608D7 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				84031E961C00E1C3003ADEC3 /* MapViewController */,
+				84031E901C00C207003ADEC3 /* WebViewController */,
 				84B231CD1BFA79B9001608D7 /* CoreDataManager */,
 				84B231C41BFA78FF001608D7 /* TableViewController */,
 			);
@@ -558,6 +588,8 @@
 			files = (
 				84B751B11BFC7F4A00FBB3EF /* BankObject.m in Sources */,
 				84B231CC1BFA7921001608D7 /* ConverterLab_App.xcdatamodeld in Sources */,
+				84031E931C00C23C003ADEC3 /* WebViewController.m in Sources */,
+				84031E991C00E1ED003ADEC3 /* MapViewController.m in Sources */,
 				84B751B41BFC815D00FBB3EF /* CityObject.m in Sources */,
 				84B231D41BFA82AC001608D7 /* VisitCardCell.m in Sources */,
 				84B751BA1BFC81C500FBB3EF /* CurrencyObject.m in Sources */,

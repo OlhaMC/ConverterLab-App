@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="a2t-gm-mco">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -70,6 +71,9 @@
                                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                         </state>
                                                         <state key="highlighted" image="ic_link_floating.png"/>
+                                                        <connections>
+                                                            <action selector="linkButtonAction:" destination="stU-Pq-Gl6" eventType="touchUpInside" id="2a0-XL-1xu"/>
+                                                        </connections>
                                                     </button>
                                                 </barButtonItem>
                                                 <barButtonItem style="plain" systemItem="flexibleSpace" id="poe-sm-vMB"/>
@@ -82,6 +86,9 @@
                                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                         </state>
                                                         <state key="highlighted" image="ic_mark_active.png"/>
+                                                        <connections>
+                                                            <action selector="mapButtonAction:" destination="stU-Pq-Gl6" eventType="touchUpInside" id="xJX-A2-MOF"/>
+                                                        </connections>
                                                     </button>
                                                 </barButtonItem>
                                                 <barButtonItem style="plain" systemItem="flexibleSpace" id="fjp-du-7ia"/>
@@ -94,6 +101,9 @@
                                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                         </state>
                                                         <state key="highlighted" image="ic_phone_active.png"/>
+                                                        <connections>
+                                                            <action selector="callButtonAction:" destination="stU-Pq-Gl6" eventType="touchUpInside" id="ndd-9w-Jzj"/>
+                                                        </connections>
                                                     </button>
                                                 </barButtonItem>
                                                 <barButtonItem style="plain" systemItem="flexibleSpace" id="Yz6-9h-Hm0"/>
@@ -153,7 +163,91 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eQZ-lD-cvb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="255" y="213"/>
+            <point key="canvasLocation" x="280" y="117"/>
+        </scene>
+        <!--Web View Controller-->
+        <scene sceneID="umm-af-lnU">
+            <objects>
+                <viewController storyboardIdentifier="webViewController" id="G3C-qz-BEv" customClass="WebViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="4fr-oJ-fOe"/>
+                        <viewControllerLayoutGuide type="bottom" id="M0h-vn-75f"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="bKs-f5-vvn">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="oDo-Aa-xq3">
+                                <rect key="frame" x="282" y="282" width="37" height="37"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="37" id="G9B-3d-EiP"/>
+                                    <constraint firstAttribute="width" constant="37" id="RBo-Fa-5aA"/>
+                                    <constraint firstAttribute="width" secondItem="oDo-Aa-xq3" secondAttribute="height" multiplier="1:1" id="qYb-Mt-Wav"/>
+                                </constraints>
+                                <color key="color" red="0.29803922772407532" green="0.29803922772407532" blue="0.29803922772407532" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
+                            <webView clipsSubviews="YES" contentMode="scaleToFill" scalesPageToFit="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gKh-6o-EFt">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES"/>
+                                <connections>
+                                    <outlet property="delegate" destination="G3C-qz-BEv" id="sBG-ug-NLg"/>
+                                </connections>
+                            </webView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="gKh-6o-EFt" firstAttribute="leading" secondItem="bKs-f5-vvn" secondAttribute="leading" id="3Bz-6Z-T4Z"/>
+                            <constraint firstAttribute="centerY" secondItem="oDo-Aa-xq3" secondAttribute="centerY" id="J9R-Ib-IW4"/>
+                            <constraint firstItem="M0h-vn-75f" firstAttribute="top" secondItem="gKh-6o-EFt" secondAttribute="bottom" id="JYR-4j-8bs"/>
+                            <constraint firstAttribute="centerX" secondItem="oDo-Aa-xq3" secondAttribute="centerX" id="TpO-hN-3xz"/>
+                            <constraint firstItem="gKh-6o-EFt" firstAttribute="top" secondItem="bKs-f5-vvn" secondAttribute="topMargin" id="j4J-jv-zmb"/>
+                            <constraint firstAttribute="trailing" secondItem="gKh-6o-EFt" secondAttribute="trailing" id="xxP-gU-8Ia"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="indicator" destination="oDo-Aa-xq3" id="nwE-gg-TPi"/>
+                        <outlet property="webView" destination="gKh-6o-EFt" id="FmC-GT-0ge"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mmA-pt-Y0h" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-422" y="793"/>
+        </scene>
+        <!--Map View Controller-->
+        <scene sceneID="Qw7-5z-MI8">
+            <objects>
+                <viewController storyboardIdentifier="mapViewController" title="Map View Controller" id="Jts-zv-vMb" customClass="MapViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Rb6-kx-RGN"/>
+                        <viewControllerLayoutGuide type="bottom" id="xqH-fS-LyT"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Eyv-pU-SXk">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="VaH-pe-nUX">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <connections>
+                                    <outlet property="delegate" destination="Jts-zv-vMb" id="yki-E7-HwC"/>
+                                </connections>
+                            </mapView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="VaH-pe-nUX" secondAttribute="trailing" id="Gby-XA-Wzz"/>
+                            <constraint firstItem="VaH-pe-nUX" firstAttribute="leading" secondItem="Eyv-pU-SXk" secondAttribute="leading" id="X0n-wY-ha8"/>
+                            <constraint firstItem="VaH-pe-nUX" firstAttribute="top" secondItem="Eyv-pU-SXk" secondAttribute="topMargin" id="fe6-2F-3ag"/>
+                            <constraint firstItem="xqH-fS-LyT" firstAttribute="top" secondItem="VaH-pe-nUX" secondAttribute="bottom" id="kGs-ui-2px"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="mapView" destination="VaH-pe-nUX" id="4Qd-2N-uCD"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eF3-bw-lYq" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="280" y="793"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="3rG-nQ-zU4">

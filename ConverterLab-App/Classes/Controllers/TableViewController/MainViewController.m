@@ -13,10 +13,11 @@
 #import "CityObject.h"
 #import "RegionObject.h"
 #import "CurrencyObject.h"
+#import "WebViewController.h"
+#import "MapViewController.h"
 
 @interface MainViewController ()
 
-//@property (strong, nonatomic) NSDictionary *jsonDictionary;
 @property (strong, nonatomic) NSMutableArray *citiesArray;
 @property (strong, nonatomic) NSMutableArray *regionsArray;
 @property (strong, nonatomic) NSMutableArray *banksArray;
@@ -53,19 +54,6 @@ dispatch_queue_t myQueue(){
   NSLog(@"%@",[coreDataManager applicationDocumentsDirectory]);
 }
 
-- (void) viewWillAppear:(BOOL)animated
-{
-//    NSLog(@"view will appear");
-//    [self updateDataSource];
-//    [self.tableView reloadData];
-//    for (RegionObject *region in self.regionsArray) {
-//        NSLog(@"Region %@, banks - %ld", region.name, region.banksInRegion.count);
-//    }
-//    for (CityObject *city in self.citiesArray) {
-//        NSLog(@"City %@, banks - %ld", city.name, city.banksInCity.count);
-//    }
-}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
@@ -96,6 +84,7 @@ dispatch_queue_t myQueue(){
         [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     });
 }
+
 #pragma mark - Update properties
 - (void)updateDataSource
 {
@@ -213,12 +202,21 @@ dispatch_queue_t myQueue(){
                        dispatch_async(dispatch_get_main_queue(), ^{
                            [self removeLoadingInProgressLable];
                            UIAlertView * alert =
-                           [[UIAlertView alloc] initWithTitle:@"Downloading failed"
+                           [[UIAlertView alloc] initWithTitle:@"Server error"
                                                       message:@"Information is NOT updated!"
                                                      delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
                            [alert show];
                        });
                    }
+               } else {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       [self removeLoadingInProgressLable];
+                       UIAlertView * alert =
+                       [[UIAlertView alloc] initWithTitle:@"URL is unavailable"
+                                                  message:@"Information is NOT updated!"
+                                                 delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                       [alert show];
+                   });
                }
            }];
     
@@ -423,6 +421,7 @@ dispatch_queue_t myQueue(){
 {
     return self.banksArray.count;
 }
+
 - (void)configureTileCell:(VisitCardCell*)cell atIndexPath: (NSIndexPath*)indexPath
 {
     BankObject *bank = [self.banksArray objectAtIndex:indexPath.section];
@@ -441,8 +440,6 @@ dispatch_queue_t myQueue(){
     cell.mapButton.tag = indexPath.section;
     cell.callButton.tag = indexPath.section;
     cell.detailsButton.tag = indexPath.section;
-    
-    //cell.linkButton.imageView.image = [UIImage imageNamed:@"ic_link_unactive"];
 
     [cell.contentView sizeToFit];
 }
@@ -473,6 +470,45 @@ dispatch_queue_t myQueue(){
     [sizingCell layoutIfNeeded];
     CGSize size = [sizingCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
     return size.height + 1.0f;
+}
+
+#pragma mark - IBActions
+- (IBAction)linkButtonAction:(UIButton*)sender{
+    
+    BankObject *bank = [self.banksArray objectAtIndex:sender.tag];
+    
+    WebViewController * webViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"webViewController"];
+    webViewController.title = bank.title;
+    
+    NSString *stringURL = bank.link;
+    NSURL *bankURL = [NSURL URLWithString:stringURL];
+    webViewController.bankLinkURL = bankURL;
+    
+    [self.navigationController pushViewController:webViewController animated:YES];
+}
+
+- (IBAction)mapButtonAction:(UIButton*)sender {
+    BankObject *bank = [self.banksArray objectAtIndex:sender.tag];
+    MapViewController *mapViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"mapViewController"];
+    mapViewController.title = @"Map location";
+    mapViewController.bank = bank;
+    
+    [self.navigationController pushViewController:mapViewController animated:YES];
+}
+
+- (IBAction)callButtonAction:(UIButton*)sender {
+    BankObject *bank = [self.banksArray objectAtIndex:sender.tag];
+    NSString *phoneNumber = [NSString stringWithFormat:@"tel://+380%@",bank.phone];
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:phoneNumber]]) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber]];
+    } else {
+        UIAlertView * alert =
+        [[UIAlertView alloc] initWithTitle:@"Unavailable"
+                                   message:@"Can't call bank phone number."
+                                  delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+    };
+    
 }
 
 @end
