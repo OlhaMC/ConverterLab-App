@@ -21,8 +21,12 @@
 @property (strong, nonatomic) NSMutableArray *citiesArray;
 @property (strong, nonatomic) NSMutableArray *regionsArray;
 @property (strong, nonatomic) NSMutableArray *banksArray;
+@property (strong, nonatomic) NSMutableArray *searchedBanksArray;
 
 @property (strong, nonatomic) UIView *loadingView;
+@property (strong, nonatomic) UIActivityIndicatorView *indicatorView;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (weak, nonatomic) IBOutlet UISearchDisplayController *mySearchController;
 
 @end
 
@@ -43,12 +47,37 @@ dispatch_queue_t myQueue(){
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    UIBarButtonItem *searchButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(revealSearchBarAction)];
+    searchButton.tintColor = [UIColor whiteColor];
+    self.navigationItem.rightBarButtonItem = searchButton;
+    self.searchBar.hidden = YES;
+    
+    CGRect newBounds = self.tableView.bounds;
+    newBounds.origin.y = newBounds.origin.y + self.searchBar.bounds.size.height;
+    self.tableView.bounds = newBounds;
+    
+    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    indicator.center = self.view.center;
+    indicator.color = [UIColor grayColor];
+    indicator.hidesWhenStopped = YES;
+    self.indicatorView = indicator;
+    [self.view addSubview:self.indicatorView];
+    
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     [self showLoadingInProgress];
+//    NSURL * resourseURL =
+//    [NSURL URLWithString:@"http://resources.finance.ua/ua/public/currency-cash.json"];
+//
+////    if ([[UIApplication sharedApplication] canOpenURL:resourseURL]) {
+//        [self downloadBankInformation];
+//   // } else {
+//        [self updateDataSource];
+//   // }
     
-    [self downloadBankInformation];
-    [self updateDataSource];
-    [self.tableView reloadData];
+   // [self downloadBankInformation];
+   [self updateDataSource];
+
+   // [self.tableView reloadData];
     
    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
   NSLog(@"%@",[coreDataManager applicationDocumentsDirectory]);
@@ -58,40 +87,41 @@ dispatch_queue_t myQueue(){
     [super didReceiveMemoryWarning];
 }
 
+- (void) viewWillAppear:(BOOL)animated {
+   // [self showLoadingInProgress];
+}
+
 - (void)showLoadingInProgress
 {
-    self.loadingView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    self.loadingView.backgroundColor = [UIColor whiteColor];
-    UILabel *loadingLable = [[UILabel alloc] init];
-    loadingLable.text = @"Loading ...";
-    loadingLable.textColor = [UIColor darkTextColor];
-    [loadingLable sizeToFit];
-    loadingLable.center = self.loadingView.center;
-    [self.loadingView addSubview:loadingLable];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.view addSubview:self.loadingView];
-        [self.view bringSubviewToFront:self.loadingView];
+        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+       // [self.view bringSubviewToFront:self.loadingView];
+        [self.indicatorView startAnimating];
     });
 }
 
 - (void)removeLoadingInProgressLable
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.loadingView) {
-            [self.loadingView removeFromSuperview];
-        }
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+//        if (self.loadingView) {
+//            [self.loadingView removeFromSuperview];
+//        }
+       [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+       [self.indicatorView stopAnimating];
     });
 }
 
 #pragma mark - Update properties
 - (void)updateDataSource
 {
+    if (self.indicatorView.hidden) {
+        [self showLoadingInProgress];
+    }
     [self updateCitiesArray];
     [self updateRegionsArray];
     [self updateBanksArray];
-    [self sortBanks];
+    
+    [self.tableView reloadData];
     [self removeLoadingInProgressLable];
 }
 
@@ -99,6 +129,9 @@ dispatch_queue_t myQueue(){
 {
     OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
     NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"City"];
+    if (self.citiesArray) {
+        [self.citiesArray removeAllObjects];
+    }
     self.citiesArray =
     [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
                                                          error:nil] mutableCopy];
@@ -108,6 +141,9 @@ dispatch_queue_t myQueue(){
 {
     OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
     NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Region"];
+    if (self.regionsArray) {
+        [self.regionsArray removeAllObjects];
+    }
     self.regionsArray=
     [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
                                                          error:nil] mutableCopy];
@@ -117,9 +153,13 @@ dispatch_queue_t myQueue(){
 {
     OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
     NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Bank"];
+    if (self.banksArray) {
+        [self.banksArray removeAllObjects];
+    }
     self.banksArray =
     [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
                                                          error:nil] mutableCopy];
+    [self sortBanks];
 }
 
 - (void) sortBanks
@@ -128,6 +168,7 @@ dispatch_queue_t myQueue(){
     sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES];
     NSArray * sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
     NSArray * sortedArray = [self.banksArray sortedArrayUsingDescriptors:sortDescriptors];
+    [self.banksArray removeAllObjects];
     self.banksArray = [sortedArray mutableCopy];
 }
 
@@ -177,6 +218,7 @@ dispatch_queue_t myQueue(){
 
 - (void) downloadBankInformation
 {
+    [self showLoadingInProgress];
     NSURL * resourseURL =
     [NSURL URLWithString:@"http://resources.finance.ua/ua/public/currency-cash.json"];
     NSURLSession * session = [NSURLSession sessionWithConfiguration: [self getSessionConfiguration]];
@@ -200,9 +242,10 @@ dispatch_queue_t myQueue(){
                    } else {
                        
                        dispatch_async(dispatch_get_main_queue(), ^{
-                           [self removeLoadingInProgressLable];
+                           [self updateDataSource];
+                          // [self removeLoadingInProgressLable];
                            UIAlertView * alert =
-                           [[UIAlertView alloc] initWithTitle:@"Server error"
+                           [[UIAlertView alloc] initWithTitle:@"Error"
                                                       message:@"Information is NOT updated!"
                                                      delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
                            [alert show];
@@ -210,7 +253,8 @@ dispatch_queue_t myQueue(){
                    }
                } else {
                    dispatch_async(dispatch_get_main_queue(), ^{
-                       [self removeLoadingInProgressLable];
+                       //[self removeLoadingInProgressLable];
+                       [self updateDataSource];
                        UIAlertView * alert =
                        [[UIAlertView alloc] initWithTitle:@"URL is unavailable"
                                                   message:@"Information is NOT updated!"
@@ -250,10 +294,10 @@ dispatch_queue_t myQueue(){
     [self createBanksArray:jsonDictionary];
     
     [self updateDataSource];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self removeLoadingInProgressLable];
-        [self.tableView reloadData];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self removeLoadingInProgressLable];
+//        [self.tableView reloadData];
+//    });
 }
 
 - (void)createCitiesArray: (NSDictionary*)jsonDictionary
@@ -321,6 +365,8 @@ dispatch_queue_t myQueue(){
             bankObject.title = organization[@"title"];
             bankObject.address = organization[@"address"];
             
+            //NSString *stringNumber = organization[@"phone"];
+           // NSInteger intNumber = [stringNumber longLongValue];
             NSInteger intNumber = [organization[@"phone"] longLongValue];
             NSNumber *number=[NSNumber numberWithLongLong:intNumber];
             bankObject.phone = number;
@@ -395,6 +441,58 @@ dispatch_queue_t myQueue(){
     }
 }
 
+#pragma mark - SearchDisplayControllerDelegate
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString {
+
+    [self filterContentForSearchText:searchString];
+
+    [self.mySearchController.searchResultsTableView reloadData];
+    
+    return YES;
+}
+
+- (void)filterContentForSearchText:(NSString*)searchString {
+
+    NSString *trimmedString =
+    [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSArray *searchItemsArray =
+    [[NSArray alloc] initWithArray:[trimmedString componentsSeparatedByString:@" "]];
+    
+    NSMutableArray *matchingBanksArray = [NSMutableArray array];
+    NSMutableArray *allBanks = self.banksArray;
+    for (BankObject *bank in allBanks) {
+        
+        NSString *fullBankName = [self getFullNameForBank:bank];
+        bool matchesAll = YES;
+        
+        for (NSString *word in searchItemsArray) {
+            if (![fullBankName containsString:word]) {
+                matchesAll = NO;
+                break;
+            }
+        }
+        
+        if (matchesAll) {
+            [matchingBanksArray addObject:bank];
+        }
+    }
+    
+    self.searchedBanksArray = matchingBanksArray;
+}
+
+- (NSString*)getFullNameForBank: (BankObject*)bank
+{
+    CityObject *city = bank.cityOfBank;
+    RegionObject *region = bank.regionOfBank;
+    
+    return [NSString stringWithFormat:@"%@ %@ %@", bank.title, city.name, region.name];
+}
+
+- (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView {
+    self.searchBar.hidden = YES;
+}
+
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -405,30 +503,44 @@ dispatch_queue_t myQueue(){
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     VisitCardCell * cell =
-    [tableView dequeueReusableCellWithIdentifier: OFVisitCardCellIdentifier];
+    [self.tableView dequeueReusableCellWithIdentifier: OFVisitCardCellIdentifier];
     
     if (!cell)
     {
         cell = [[VisitCardCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:OFVisitCardCellIdentifier];
     }
     
-    [self configureTileCell:cell atIndexPath:indexPath];
+    [self configureTileCell:cell atIndexPath:indexPath forTableView:tableView];
     
     return cell;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return self.banksArray.count;
+    if (tableView == self.mySearchController.searchResultsTableView) {
+        return self.searchedBanksArray.count;
+    } else {
+        return self.banksArray.count;
+    }
 }
 
-- (void)configureTileCell:(VisitCardCell*)cell atIndexPath: (NSIndexPath*)indexPath
-{
-    BankObject *bank = [self.banksArray objectAtIndex:indexPath.section];
+- (void)configureTileCell:(VisitCardCell*)cell atIndexPath: (NSIndexPath*)indexPath forTableView:(UITableView*)tableView {
+    
+    BankObject *bank = nil;
+    if (tableView == self.mySearchController.searchResultsTableView) {
+        bank = [self.searchedBanksArray objectAtIndex:indexPath.section];
+    } else {
+        bank = [self.banksArray objectAtIndex:indexPath.section];
+    }
+
     cell.nameTitle.text = bank.title;
     cell.addressTitle.text = bank.address;
+    if (!bank.phone) {
+        cell.phoneNumberTitle.text = @"Unavailable";
+    } else {
     cell.phoneNumberTitle.text =
     [NSString stringWithFormat:@"0%lld",[bank.phone longLongValue]];
+    }
 
     CityObject *cityOfBank = bank.cityOfBank;
     RegionObject *regionOfBank = bank.regionOfBank;
@@ -448,18 +560,13 @@ dispatch_queue_t myQueue(){
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath: (NSIndexPath *)indexPath
 {
-    return [self heightForConfiguredCellAtIndexPath:indexPath];
-}
-
-- (CGFloat)heightForConfiguredCellAtIndexPath: (NSIndexPath*)indexPath
-{
     static VisitCardCell * sizingCell = nil;
     static dispatch_once_t onceToken;
     dispatch_once (&onceToken, ^{
         sizingCell =
-        [self.tableView dequeueReusableCellWithIdentifier:OFVisitCardCellIdentifier];
+        [tableView dequeueReusableCellWithIdentifier:OFVisitCardCellIdentifier];
     });
-    [self configureTileCell: sizingCell atIndexPath: indexPath];
+    [self configureTileCell: sizingCell atIndexPath: indexPath forTableView:tableView];
     return [self calculateHeightForConfiguredSizingCell:sizingCell];
 }
 
@@ -473,9 +580,19 @@ dispatch_queue_t myQueue(){
 }
 
 #pragma mark - IBActions
+- (void)revealSearchBarAction {
+    self.searchBar.hidden = NO;
+    [self.searchBar becomeFirstResponder];
+}
+
 - (IBAction)linkButtonAction:(UIButton*)sender{
     
-    BankObject *bank = [self.banksArray objectAtIndex:sender.tag];
+    BankObject *bank;
+    if ([self.mySearchController isActive]) {
+        bank = [self.searchedBanksArray objectAtIndex:sender.tag];
+    } else {
+        bank = [self.banksArray objectAtIndex:sender.tag];
+    }
     
     WebViewController * webViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"webViewController"];
     webViewController.title = bank.title;
@@ -488,7 +605,13 @@ dispatch_queue_t myQueue(){
 }
 
 - (IBAction)mapButtonAction:(UIButton*)sender {
-    BankObject *bank = [self.banksArray objectAtIndex:sender.tag];
+    BankObject *bank;
+    if ([self.mySearchController isActive]) {
+        bank = [self.searchedBanksArray objectAtIndex:sender.tag];
+    } else {
+        bank = [self.banksArray objectAtIndex:sender.tag];
+    }
+    
     MapViewController *mapViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"mapViewController"];
     mapViewController.title = @"Map location";
     mapViewController.bank = bank;
@@ -497,7 +620,13 @@ dispatch_queue_t myQueue(){
 }
 
 - (IBAction)callButtonAction:(UIButton*)sender {
-    BankObject *bank = [self.banksArray objectAtIndex:sender.tag];
+    BankObject *bank;
+    if ([self.mySearchController isActive]) {
+        bank = [self.searchedBanksArray objectAtIndex:sender.tag];
+    } else {
+        bank = [self.banksArray objectAtIndex:sender.tag];
+    }
+    
     NSString *phoneNumber = [NSString stringWithFormat:@"tel://+380%@",bank.phone];
     if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:phoneNumber]]) {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:phoneNumber]];

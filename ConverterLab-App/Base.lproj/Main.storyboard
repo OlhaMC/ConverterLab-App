@@ -14,6 +14,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" text="Ужгород" id="amP-UH-KmC">
+                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="stU-Pq-Gl6" id="SXN-4Q-J6q"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="tileCell" rowHeight="197" id="7k3-E4-WK5" customClass="VisitCardCell">
                                 <autoresizingMask key="autoresizingMask"/>
@@ -160,8 +168,22 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Converter Lab" id="o7s-bB-vyd"/>
+                    <connections>
+                        <outlet property="mySearchController" destination="5ws-IV-i5h" id="egR-QU-zvz"/>
+                        <outlet property="searchBar" destination="amP-UH-KmC" id="Ic7-7Q-NMB"/>
+                        <outlet property="searchDisplayController" destination="5ws-IV-i5h" id="z7K-sP-LlY"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eQZ-lD-cvb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="5ws-IV-i5h">
+                    <connections>
+                        <outlet property="delegate" destination="stU-Pq-Gl6" id="bdX-UA-YA5"/>
+                        <outlet property="searchBar" destination="amP-UH-KmC" id="qhL-gx-vop"/>
+                        <outlet property="searchContentsController" destination="stU-Pq-Gl6" id="3Ic-L2-yLv"/>
+                        <outlet property="searchResultsDataSource" destination="stU-Pq-Gl6" id="npQ-oX-Vn4"/>
+                        <outlet property="searchResultsDelegate" destination="stU-Pq-Gl6" id="Pos-dX-CEp"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="280" y="117"/>
         </scene>
