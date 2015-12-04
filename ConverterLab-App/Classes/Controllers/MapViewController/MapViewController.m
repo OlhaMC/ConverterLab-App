@@ -77,7 +77,14 @@
 //            } else { NSLog(@"No areas of interest was found");}
         }
         if (error) {
-            NSLog(@"Coordinates error - %@ %@", error, [error localizedDescription]);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertView * alert =
+                [[UIAlertView alloc] initWithTitle:@"Geocoding Error"
+                                           message:@"Address geocoding error"
+                                          delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                [alert show];
+            });
+            //NSLog(@"Coordinates error - %@ %@", error, [error localizedDescription]);
         }
         
     }];

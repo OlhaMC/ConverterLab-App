@@ -34,15 +34,6 @@
 
 static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 
-dispatch_queue_t myQueue(){
-    static dispatch_queue_t myQueue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        myQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    });
-    return myQueue;
-}
-
 #pragma mark - Life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -63,21 +54,8 @@ dispatch_queue_t myQueue(){
     self.indicatorView = indicator;
     [self.view addSubview:self.indicatorView];
     
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    [self showLoadingInProgress];
-//    NSURL * resourseURL =
-//    [NSURL URLWithString:@"http://resources.finance.ua/ua/public/currency-cash.json"];
-//
-////    if ([[UIApplication sharedApplication] canOpenURL:resourseURL]) {
-//        [self downloadBankInformation];
-//   // } else {
-//        [self updateDataSource];
-//   // }
-    
-   // [self downloadBankInformation];
-   [self updateDataSource];
-
-   // [self.tableView reloadData];
+   [self downloadBankInformation];
+  // [self updateDataSource];
     
    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
   NSLog(@"%@",[coreDataManager applicationDocumentsDirectory]);
@@ -87,36 +65,21 @@ dispatch_queue_t myQueue(){
     [super didReceiveMemoryWarning];
 }
 
-- (void) viewWillAppear:(BOOL)animated {
-   // [self showLoadingInProgress];
-}
-
 - (void)showLoadingInProgress
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-       // [self.view bringSubviewToFront:self.loadingView];
-        [self.indicatorView startAnimating];
-    });
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    [self.indicatorView startAnimating];
 }
 
 - (void)removeLoadingInProgressLable
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-//        if (self.loadingView) {
-//            [self.loadingView removeFromSuperview];
-//        }
-       [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-       [self.indicatorView stopAnimating];
-    });
+   [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+   [self.indicatorView stopAnimating];
 }
 
 #pragma mark - Update properties
 - (void)updateDataSource
 {
-    if (self.indicatorView.hidden) {
-        [self showLoadingInProgress];
-    }
     [self updateCitiesArray];
     [self updateRegionsArray];
     [self updateBanksArray];
@@ -218,6 +181,7 @@ dispatch_queue_t myQueue(){
 
 - (void) downloadBankInformation
 {
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     [self showLoadingInProgress];
     NSURL * resourseURL =
     [NSURL URLWithString:@"http://resources.finance.ua/ua/public/currency-cash.json"];
@@ -240,10 +204,8 @@ dispatch_queue_t myQueue(){
                            [self createDataBaseFromDictionary:jsonDictionary];
                        }
                    } else {
-                       
                        dispatch_async(dispatch_get_main_queue(), ^{
                            [self updateDataSource];
-                          // [self removeLoadingInProgressLable];
                            UIAlertView * alert =
                            [[UIAlertView alloc] initWithTitle:@"Error"
                                                       message:@"Information is NOT updated!"
@@ -253,7 +215,6 @@ dispatch_queue_t myQueue(){
                    }
                } else {
                    dispatch_async(dispatch_get_main_queue(), ^{
-                       //[self removeLoadingInProgressLable];
                        [self updateDataSource];
                        UIAlertView * alert =
                        [[UIAlertView alloc] initWithTitle:@"URL is unavailable"
@@ -265,7 +226,6 @@ dispatch_queue_t myQueue(){
            }];
     
     [getDataForURLTask resume];
-
 }
 
 - (NSDictionary*)createDictionaryFromData: (NSData*) data
@@ -294,10 +254,6 @@ dispatch_queue_t myQueue(){
     [self createBanksArray:jsonDictionary];
     
     [self updateDataSource];
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        [self removeLoadingInProgressLable];
-//        [self.tableView reloadData];
-//    });
 }
 
 - (void)createCitiesArray: (NSDictionary*)jsonDictionary
@@ -365,8 +321,6 @@ dispatch_queue_t myQueue(){
             bankObject.title = organization[@"title"];
             bankObject.address = organization[@"address"];
             
-            //NSString *stringNumber = organization[@"phone"];
-           // NSInteger intNumber = [stringNumber longLongValue];
             NSInteger intNumber = [organization[@"phone"] longLongValue];
             NSNumber *number=[NSNumber numberWithLongLong:intNumber];
             bankObject.phone = number;
@@ -486,11 +440,7 @@ dispatch_queue_t myQueue(){
     CityObject *city = bank.cityOfBank;
     RegionObject *region = bank.regionOfBank;
     
-    return [NSString stringWithFormat:@"%@ %@ %@", bank.title, city.name, region.name];
-}
-
-- (void)searchDisplayController:(UISearchDisplayController *)controller didHideSearchResultsTableView:(UITableView *)tableView {
-    self.searchBar.hidden = YES;
+    return [NSString stringWithFormat:@"%@ %@ %@ %@", bank.title, city.name, region.name, bank.link];
 }
 
 #pragma mark - UITableViewDataSource
