@@ -7,6 +7,16 @@
 //
 
 #import "OFCoreDataManager.h"
+#import "BankObject.h"
+#import "CityObject.h"
+#import "RegionObject.h"
+#import "CurrencyObject.h"
+
+@interface OFCoreDataManager ()
+
+
+
+@end
 
 @implementation OFCoreDataManager
 
@@ -101,5 +111,306 @@
         }
     }
 }
+
+#pragma mark - Download data
+- (NSURLSessionConfiguration *) getSessionConfiguration
+{
+    NSURLSessionConfiguration * configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    configuration.timeoutIntervalForRequest = 30.0f;
+    configuration.timeoutIntervalForResource = 60.0f;
+    return configuration;
+}
+
+- (void) downloadBankInformation
+{
+    NSURL * resourseURL =
+    [NSURL URLWithString:@"http://resources.finance.ua/ua/public/currency-cash.json"];
+    NSURLSession * session = [NSURLSession sessionWithConfiguration: [self getSessionConfiguration]];
+    
+    NSURLSessionTask * getDataForURLTask =
+    [session dataTaskWithURL:resourseURL
+           completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+               
+               if ([response respondsToSelector:@selector(statusCode)])
+               {
+                   if ([(NSHTTPURLResponse *) response statusCode] == 200)
+                   {
+                       NSDictionary *jsonDictionary =
+                       [self createDictionaryFromData:data];
+                       
+                       if (jsonDictionary)
+                       {
+                           [self deleteOldDataFromDataSource];
+                           [self createDataBaseFromDictionary:jsonDictionary];
+                       }
+                   } else {
+                       dispatch_async(dispatch_get_main_queue(), ^{
+                           [self updateDataPropertiesToMatchDataSource];
+                           UIAlertView * alert =
+                           [[UIAlertView alloc] initWithTitle:@"Error"
+                                                      message:@"Information is NOT updated!"
+                                                     delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                           [alert show];
+                       });
+                   }
+               } else {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       [self updateDataPropertiesToMatchDataSource];
+                       UIAlertView * alert =
+                       [[UIAlertView alloc] initWithTitle:@"URL is unavailable"
+                                                  message:@"Information is NOT updated!"
+                                                 delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                       [alert show];
+                   });
+               }
+           }];
+    
+    [getDataForURLTask resume];
+}
+
+- (NSDictionary*)createDictionaryFromData: (NSData*) data
+{
+    NSError *parseJsonError = nil;
+    
+    NSDictionary *jsonDict =
+    [NSJSONSerialization JSONObjectWithData:data
+                                    options:NSJSONReadingAllowFragments
+                                      error:&parseJsonError];
+    if (!parseJsonError)
+    {
+        return jsonDict;
+    }
+    return nil;
+}
+
+- (void)createDataBaseFromDictionary: (NSDictionary*)jsonDictionary
+{
+    [self createCitiesArray:jsonDictionary];
+    [self createRegionsArray:jsonDictionary];
+    
+    [self updateCitiesArray];
+    [self updateRegionsArray];
+    
+    [self createBanksArray:jsonDictionary];
+    
+    [self updateDataPropertiesToMatchDataSource];
+}
+
+- (void)createCitiesArray: (NSDictionary*)jsonDictionary
+{
+    NSDictionary *citiesDictionary= jsonDictionary[@"cities"];
+    NSArray *cityKeys = [citiesDictionary allKeys];
+    
+    for (NSString *key in cityKeys) {
+        CityObject *cityObject =
+        [NSEntityDescription insertNewObjectForEntityForName:@"City"
+                                      inManagedObjectContext:self.managedObjectContext];
+        
+        cityObject.cityId = key;
+        cityObject.name = [citiesDictionary objectForKey:key];
+    }
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error])
+    {
+        NSLog(@"Can't save cities array - %@ %@", error, [error localizedDescription]);
+    }
+}
+
+- (void)createRegionsArray: (NSDictionary*)jsonDictionary
+{
+    NSDictionary *regionsDictionary = jsonDictionary[@"regions"];
+    NSArray *regionsKeys = [regionsDictionary allKeys];
+    
+    for (NSString *key in regionsKeys) {
+        RegionObject * regionObject =
+        [NSEntityDescription insertNewObjectForEntityForName:@"Region"
+                                      inManagedObjectContext:self.managedObjectContext];
+        
+        regionObject.regionId = key;
+        regionObject.name = [regionsDictionary objectForKey:key];
+    }
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error])
+    {
+        NSLog(@"Can't save regions array - %@ %@", error, [error localizedDescription]);
+    }
+}
+
+- (void)createBanksArray: (NSDictionary*)jsonDictionary
+{
+    NSArray *allOrganizations = jsonDictionary[@"organizations"];
+    
+    for (NSDictionary *organization in allOrganizations) {
+        
+        if ([organization[@"orgType"] integerValue] == 1) {
+            BankObject *bankObject =
+            [NSEntityDescription insertNewObjectForEntityForName:@"Bank"
+                                          inManagedObjectContext:self.managedObjectContext];
+            
+            bankObject.title = organization[@"title"];
+            bankObject.address = organization[@"address"];
+            
+            NSInteger intNumber = [organization[@"phone"] longLongValue];
+            NSNumber *number=[NSNumber numberWithLongLong:intNumber];
+            bankObject.phone = number;
+            
+            bankObject.link = organization[@"link"];
+            bankObject.bankId = organization[@"id"];
+            
+            [self createCurrencyExchangeRatesForBank:bankObject
+                                     usingDictionary:organization];
+            
+            [self setRelationshipsForBank: bankObject
+                          usingDictionary: organization];
+        }
+    }
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error])
+    {
+        NSLog(@"Can't save banks array - %@ %@", error, [error localizedDescription]);
+    }
+}
+
+- (void)createCurrencyExchangeRatesForBank: (BankObject*)bankObject
+                           usingDictionary: (NSDictionary*)organization {
+
+    NSDictionary *currencyDictionary = organization[@"currencies"];
+    NSArray *keysArray = [currencyDictionary allKeys];
+    
+    for (NSString *key in keysArray) {
+        CurrencyObject *typeOfCurrency =
+        [NSEntityDescription insertNewObjectForEntityForName:@"Currency"
+                                      inManagedObjectContext:self.managedObjectContext];
+        
+        typeOfCurrency.abbreviation = key;
+        NSDictionary *ratesDictionary = [currencyDictionary objectForKey:key];
+        typeOfCurrency.bid = @([[ratesDictionary objectForKey:@"bid"] doubleValue]);
+        typeOfCurrency.ask = @([[ratesDictionary objectForKey:@"ask"] doubleValue]);
+        
+        typeOfCurrency.exchangeRateInBank = bankObject;
+        [bankObject.exRatesOfCurrencies addObject:typeOfCurrency];
+    }
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error])
+    {
+        NSLog(@"Can't save currency objects - %@ %@", error, [error localizedDescription]);
+    }
+}
+
+- (void)setRelationshipsForBank: (BankObject*)bankObject
+                usingDictionary: (NSDictionary*)organization {
+    
+    NSString *bankCityId = organization[@"cityId"];
+    NSString *bankRegionId = organization[@"regionId"];
+    
+    for (CityObject *city in self.citiesArray) {
+        if ([city.cityId isEqualToString: bankCityId]) {
+            bankObject.cityOfBank = city;
+            [city.banksInCity addObject:bankObject];
+            break;
+        }
+    }
+    
+    for (RegionObject *region in self.regionsArray) {
+        if ([region.regionId isEqualToString: bankRegionId]) {
+            bankObject.regionOfBank = region;
+            [region.banksInRegion addObject:bankObject];
+            break;
+        }
+    }
+}
+
+#pragma mark - Delete data
+- (void)deleteOldDataFromDataSource
+{
+    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"City"];
+    self.citiesArray =[[self.managedObjectContext executeFetchRequest:fetchRequest
+                                                                error:nil] mutableCopy];
+    
+    fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Region"];
+    self.regionsArray=[[self.managedObjectContext executeFetchRequest:fetchRequest
+                                                                error:nil] mutableCopy];
+    
+    fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Bank"];
+    self.banksArray =[[self.managedObjectContext executeFetchRequest:fetchRequest
+                                                               error:nil] mutableCopy];
+    
+    for (BankObject *bank in self.banksArray) {
+        [self.managedObjectContext deleteObject:bank];
+    }
+    for (CityObject *city in self.citiesArray) {
+        [self.managedObjectContext deleteObject:city];
+    }
+    for (RegionObject *region in self.regionsArray) {
+        [self.managedObjectContext deleteObject:region];
+    }
+    
+    NSError *error = nil;
+    if (![self.managedObjectContext save:&error])
+    {
+        NSLog(@"Can't delete DB - %@ %@", error, [error localizedDescription]);
+    }
+    NSLog(@"Old DB is deleted");
+}
+
+#pragma mark - Update properties
+- (void)updateDataPropertiesToMatchDataSource
+{
+    [self updateCitiesArray];
+    [self updateRegionsArray];
+    [self updateBanksArray];
+    NSLog(@"Properties are updated");
+}
+
+- (void)updateCitiesArray
+{
+    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"City"];
+    if (self.citiesArray) {
+        [self.citiesArray removeAllObjects];
+    }
+    self.citiesArray =[[self.managedObjectContext executeFetchRequest:fetchRequest
+                                                                error:nil] mutableCopy];
+    NSLog(@"Cities - %ld", self.citiesArray.count);
+}
+
+- (void)updateRegionsArray
+{
+    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Region"];
+    if (self.regionsArray) {
+        [self.regionsArray removeAllObjects];
+    }
+    self.regionsArray=[[self.managedObjectContext executeFetchRequest:fetchRequest
+                                                                error:nil] mutableCopy];
+    NSLog(@"Regions - %ld", self.regionsArray.count);
+}
+
+-(void)updateBanksArray
+{
+    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Bank"];
+    if (self.banksArray) {
+        [self.banksArray removeAllObjects];
+    }
+    self.banksArray =[[self.managedObjectContext executeFetchRequest:fetchRequest
+                                                               error:nil] mutableCopy];
+    [self sortBanks];
+    NSLog(@"Banks - %ld", self.banksArray.count);
+}
+
+- (void) sortBanks
+{
+    NSSortDescriptor * sortDescriptor;
+    sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES];
+    NSArray * sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    NSArray * sortedArray = [self.banksArray sortedArrayUsingDescriptors:sortDescriptors];
+    [self.banksArray removeAllObjects];
+    self.banksArray = [sortedArray mutableCopy];
+}
+
+
+
 
 @end
