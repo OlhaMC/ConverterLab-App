@@ -12,12 +12,6 @@
 #import "RegionObject.h"
 #import "CurrencyObject.h"
 
-@interface OFCoreDataManager ()
-
-
-
-@end
-
 @implementation OFCoreDataManager
 
 #pragma mark - Life cycle

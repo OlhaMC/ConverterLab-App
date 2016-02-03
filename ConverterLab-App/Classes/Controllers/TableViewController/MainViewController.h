@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MainViewController : UITableViewController <UISearchBarDelegate,UISearchDisplayDelegate>
+@interface MainViewController : UITableViewController <UISearchControllerDelegate, UISearchBarDelegate, UISearchResultsUpdating>
 
 
 

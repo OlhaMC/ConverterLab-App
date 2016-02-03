@@ -22,8 +22,7 @@
 
 @property (strong, nonatomic) UIView *loadingView;
 @property (strong, nonatomic) UIActivityIndicatorView *indicatorView;
-@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
-@property (weak, nonatomic) IBOutlet UISearchDisplayController *mySearchController;
+@property (strong, nonatomic) UISearchController *mySearchController;
 
 @end
 
@@ -35,14 +34,30 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.mySearchController = [[UISearchController alloc]initWithSearchResultsController:nil];
+    self.mySearchController.searchResultsUpdater = self;
+    self.mySearchController.searchBar.delegate = self;
+    self.mySearchController.dimsBackgroundDuringPresentation = NO;
+    
+    self.tableView.tableHeaderView = self.mySearchController.searchBar;
+    //self.navigationController.navigationItem.titleView = self.mySearchController.searchBar;
+    [self.mySearchController.searchBar sizeToFit];
+    self.definesPresentationContext = YES;
+    //self.navigationController.hidesBarsWhenKeyboardAppears = YES;
+    
     UIBarButtonItem *searchButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(revealSearchBarAction)];
     searchButton.tintColor = [UIColor whiteColor];
     self.navigationItem.rightBarButtonItem = searchButton;
-    self.searchBar.hidden = YES;
+    self.mySearchController.searchBar.hidden = YES;
+   // self.mySearchController.searchBar.text = @"ужгород";
     
-    CGRect newBounds = self.tableView.bounds;
-    newBounds.origin.y = newBounds.origin.y + self.searchBar.bounds.size.height;
-    self.tableView.bounds = newBounds;
+    /*CGRect newBounds = self.tableView.bounds;
+    newBounds.origin.y = newBounds.origin.y + self.mySearchController.searchBar.bounds.size.height;
+    self.tableView.bounds = newBounds;*/
+//    UIBarButtonItem *searchButton = [[UIBarButtonItem alloc] initWithCustomView: self.mySearchController.searchBar];
+//    searchButton.tintColor = [UIColor whiteColor];
+//    self.navigationItem.rightBarButtonItem = searchButton;
+//    self.mySearchController.searchBar.hidden = NO;
     
     UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     indicator.center = self.view.center;
@@ -53,8 +68,8 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
     
     self.coreDataManager = [OFCoreDataManager sharedInstance];
     
-    [self downloadInformation];
-  // [self updateDataSource];
+    //[self downloadInformation];
+  // [self.coreDataManager updateDataPropertiesToMatchDataSource];
     [self updateBankInformationOnScreen];
     
    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
@@ -89,18 +104,31 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
     [self removeLoadingInProgressLable];
 }
 
-#pragma mark - SearchDisplayControllerDelegate
-
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString {
-
-    [self filterContentForSearchText:searchString];
-
-    [self.mySearchController.searchResultsTableView reloadData];
-    
-    return YES;
+#pragma mark - UISearchResultsUpdating
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
+    NSString *searchString = searchController.searchBar.text;
+    [self filterBanksArrayForSearchText:searchString];
+    [self.tableView reloadData];
 }
+/*
+- (void)searchForText:(NSString*)searchString {
+    
+    NSString *trimmedString =
+    [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSArray *searchWordsArray =
+    [[NSArray alloc] initWithArray:[trimmedString componentsSeparatedByString:@" "]];
+    
+    NSMutableArray *subpredicatesArray = [NSMutableArray array];
+    for (NSString *word in searchWordsArray) {
+        NSPredicate *predicateItem = [NSPredicate predicateWithFormat:@"SELF contains[cd] %@",word];
+        [subpredicatesArray addObject:predicateItem];
+    }
+    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicatesArray];
+    NSArray *filteredArray = [self.notesArray filteredArrayUsingPredicate:compoundPredicate];
+    self.filteredNotesArray = filteredArray;
+}*/
 
-- (void)filterContentForSearchText:(NSString*)searchString {
+- (void)filterBanksArrayForSearchText:(NSString*)searchString {
 
     NSString *trimmedString =
     [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -115,7 +143,7 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
         bool matchesAll = YES;
         
         for (NSString *word in searchItemsArray) {
-            if (![fullBankName containsString:word]) {
+            if (![fullBankName localizedCaseInsensitiveContainsString:word]) {
                 matchesAll = NO;
                 break;
             }
@@ -137,7 +165,6 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
     
     return [NSString stringWithFormat:@"%@ %@ %@ %@",
                                       bank.title, city.name, region.name, bank.link];
-    
 }
 
 #pragma mark - UITableViewDataSource
@@ -164,7 +191,7 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    if (tableView == self.mySearchController.searchResultsTableView) {
+    if (self.mySearchController.active) {
         return self.coreDataManager.searchedBanksArray.count;
     } else {
         return self.coreDataManager.banksArray.count;
@@ -174,7 +201,7 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 - (void)configureTileCell:(VisitCardCell*)cell atIndexPath: (NSIndexPath*)indexPath forTableView:(UITableView*)tableView {
     
     BankObject *bank = nil;
-    if (tableView == self.mySearchController.searchResultsTableView) {
+    if (self.mySearchController.active) {
         bank = [self.coreDataManager.searchedBanksArray objectAtIndex:indexPath.section];
     } else {
         bank = [self.coreDataManager.banksArray objectAtIndex:indexPath.section];
@@ -228,8 +255,9 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 
 #pragma mark - IBActions
 - (void)revealSearchBarAction {
-    self.searchBar.hidden = NO;
-    [self.searchBar becomeFirstResponder];
+    self.navigationController.navigationItem.titleView = self.mySearchController.searchBar;
+    self.mySearchController.searchBar.hidden = NO;
+    [self.mySearchController.searchBar becomeFirstResponder];
 }
 
 - (IBAction)linkButtonAction:(UIButton*)sender{
