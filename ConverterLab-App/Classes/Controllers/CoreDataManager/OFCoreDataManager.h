@@ -16,8 +16,16 @@
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
-+ (instancetype)sharedInstance;
-- (void)saveContext;
-- (NSURL *)applicationDocumentsDirectory;
+@property (strong, nonatomic) NSMutableArray *citiesArray;
+@property (strong, nonatomic) NSMutableArray *regionsArray;
+@property (strong, nonatomic) NSMutableArray *banksArray;
+@property (strong, nonatomic) NSMutableArray *searchedBanksArray;
+
++ (instancetype) sharedInstance;
+- (void) saveContext;
+- (NSURL *) applicationDocumentsDirectory;
+
+- (void) downloadBankInformation;
+- (void) updateDataPropertiesToMatchDataSource;
 
 @end

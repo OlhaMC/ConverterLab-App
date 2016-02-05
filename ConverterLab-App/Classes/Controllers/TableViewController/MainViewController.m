@@ -18,15 +18,11 @@
 
 @interface MainViewController ()
 
-@property (strong, nonatomic) NSMutableArray *citiesArray;
-@property (strong, nonatomic) NSMutableArray *regionsArray;
-@property (strong, nonatomic) NSMutableArray *banksArray;
-@property (strong, nonatomic) NSMutableArray *searchedBanksArray;
+@property (strong, nonatomic) OFCoreDataManager *coreDataManager;
 
 @property (strong, nonatomic) UIView *loadingView;
 @property (strong, nonatomic) UIActivityIndicatorView *indicatorView;
-@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
-@property (weak, nonatomic) IBOutlet UISearchDisplayController *mySearchController;
+@property (strong, nonatomic) UISearchController *mySearchController;
 
 @end
 
@@ -38,14 +34,30 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.mySearchController = [[UISearchController alloc]initWithSearchResultsController:nil];
+    self.mySearchController.searchResultsUpdater = self;
+    self.mySearchController.searchBar.delegate = self;
+    self.mySearchController.dimsBackgroundDuringPresentation = NO;
+    
+    self.tableView.tableHeaderView = self.mySearchController.searchBar;
+    //self.navigationController.navigationItem.titleView = self.mySearchController.searchBar;
+    [self.mySearchController.searchBar sizeToFit];
+    self.definesPresentationContext = YES;
+    //self.navigationController.hidesBarsWhenKeyboardAppears = YES;
+    
     UIBarButtonItem *searchButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(revealSearchBarAction)];
     searchButton.tintColor = [UIColor whiteColor];
     self.navigationItem.rightBarButtonItem = searchButton;
-    self.searchBar.hidden = YES;
+    self.mySearchController.searchBar.hidden = YES;
+   // self.mySearchController.searchBar.text = @"ужгород";
     
-    CGRect newBounds = self.tableView.bounds;
-    newBounds.origin.y = newBounds.origin.y + self.searchBar.bounds.size.height;
-    self.tableView.bounds = newBounds;
+    /*CGRect newBounds = self.tableView.bounds;
+    newBounds.origin.y = newBounds.origin.y + self.mySearchController.searchBar.bounds.size.height;
+    self.tableView.bounds = newBounds;*/
+//    UIBarButtonItem *searchButton = [[UIBarButtonItem alloc] initWithCustomView: self.mySearchController.searchBar];
+//    searchButton.tintColor = [UIColor whiteColor];
+//    self.navigationItem.rightBarButtonItem = searchButton;
+//    self.mySearchController.searchBar.hidden = NO;
     
     UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     indicator.center = self.view.center;
@@ -54,8 +66,11 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
     self.indicatorView = indicator;
     [self.view addSubview:self.indicatorView];
     
-   [self downloadBankInformation];
-  // [self updateDataSource];
+    self.coreDataManager = [OFCoreDataManager sharedInstance];
+    
+    //[self downloadInformation];
+  // [self.coreDataManager updateDataPropertiesToMatchDataSource];
+    [self updateBankInformationOnScreen];
     
    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
   NSLog(@"%@",[coreDataManager applicationDocumentsDirectory]);
@@ -77,336 +92,43 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
    [self.indicatorView stopAnimating];
 }
 
-#pragma mark - Update properties
-- (void)updateDataSource
+#pragma mark - Update Banks Information
+- (void) downloadInformation {
+    [self.coreDataManager downloadBankInformation];
+}
+- (void)updateBankInformationOnScreen
 {
-    [self updateCitiesArray];
-    [self updateRegionsArray];
-    [self updateBanksArray];
+    [self.coreDataManager updateDataPropertiesToMatchDataSource];
     
     [self.tableView reloadData];
     [self removeLoadingInProgressLable];
 }
 
-- (void)updateCitiesArray
-{
-    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
-    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"City"];
-    if (self.citiesArray) {
-        [self.citiesArray removeAllObjects];
-    }
-    self.citiesArray =
-    [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
-                                                         error:nil] mutableCopy];
+#pragma mark - UISearchResultsUpdating
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
+    NSString *searchString = searchController.searchBar.text;
+    [self filterBanksArrayForSearchText:searchString];
+    [self.tableView reloadData];
 }
-
-- (void)updateRegionsArray
-{
-    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
-    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Region"];
-    if (self.regionsArray) {
-        [self.regionsArray removeAllObjects];
+/*
+- (void)searchForText:(NSString*)searchString {
+    
+    NSString *trimmedString =
+    [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSArray *searchWordsArray =
+    [[NSArray alloc] initWithArray:[trimmedString componentsSeparatedByString:@" "]];
+    
+    NSMutableArray *subpredicatesArray = [NSMutableArray array];
+    for (NSString *word in searchWordsArray) {
+        NSPredicate *predicateItem = [NSPredicate predicateWithFormat:@"SELF contains[cd] %@",word];
+        [subpredicatesArray addObject:predicateItem];
     }
-    self.regionsArray=
-    [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
-                                                         error:nil] mutableCopy];
-}
+    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicatesArray];
+    NSArray *filteredArray = [self.notesArray filteredArrayUsingPredicate:compoundPredicate];
+    self.filteredNotesArray = filteredArray;
+}*/
 
--(void)updateBanksArray
-{
-    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
-    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Bank"];
-    if (self.banksArray) {
-        [self.banksArray removeAllObjects];
-    }
-    self.banksArray =
-    [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
-                                                         error:nil] mutableCopy];
-    [self sortBanks];
-}
-
-- (void) sortBanks
-{
-    NSSortDescriptor * sortDescriptor;
-    sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES];
-    NSArray * sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    NSArray * sortedArray = [self.banksArray sortedArrayUsingDescriptors:sortDescriptors];
-    [self.banksArray removeAllObjects];
-    self.banksArray = [sortedArray mutableCopy];
-}
-
-- (void)deleteOldDataFromDataSource
-{
-    OFCoreDataManager * coreDataManager = [OFCoreDataManager sharedInstance];
-    NSFetchRequest * fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"City"];
-    self.citiesArray =
-    [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
-                                                         error:nil] mutableCopy];
-
-    fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Region"];
-    self.regionsArray=
-    [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
-                                                         error:nil] mutableCopy];
-
-    fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Bank"];
-    self.banksArray =
-    [[coreDataManager.managedObjectContext executeFetchRequest:fetchRequest
-                                                         error:nil] mutableCopy];
-    
-    for (BankObject *bank in self.banksArray) {
-        [coreDataManager.managedObjectContext deleteObject:bank];
-    }
-    for (CityObject *city in self.citiesArray) {
-        [coreDataManager.managedObjectContext deleteObject:city];
-    }
-    for (RegionObject *region in self.regionsArray) {
-        [coreDataManager.managedObjectContext deleteObject:region];
-    }
-
-    NSError *error = nil;
-    if (![coreDataManager.managedObjectContext save:&error])
-    {
-        NSLog(@"Can't delete DB - %@ %@", error, [error localizedDescription]);
-    }
-}
-
-#pragma mark - Download data
-- (NSURLSessionConfiguration *) getSessionConfiguration
-{
-    NSURLSessionConfiguration * configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configuration.timeoutIntervalForRequest = 30.0f;
-    configuration.timeoutIntervalForResource = 60.0f;
-    return configuration;
-}
-
-- (void) downloadBankInformation
-{
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    [self showLoadingInProgress];
-    NSURL * resourseURL =
-    [NSURL URLWithString:@"http://resources.finance.ua/ua/public/currency-cash.json"];
-    NSURLSession * session = [NSURLSession sessionWithConfiguration: [self getSessionConfiguration]];
-    
-    NSURLSessionTask * getDataForURLTask =
-    [session dataTaskWithURL:resourseURL
-           completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-               
-               if ([response respondsToSelector:@selector(statusCode)])
-               {
-                   if ([(NSHTTPURLResponse *) response statusCode] == 200)
-                   {
-                       NSDictionary *jsonDictionary =
-                       [self createDictionaryFromData:data];
-                       
-                       if (jsonDictionary)
-                       {
-                           [self deleteOldDataFromDataSource];
-                           [self createDataBaseFromDictionary:jsonDictionary];
-                       }
-                   } else {
-                       dispatch_async(dispatch_get_main_queue(), ^{
-                           [self updateDataSource];
-                           UIAlertView * alert =
-                           [[UIAlertView alloc] initWithTitle:@"Error"
-                                                      message:@"Information is NOT updated!"
-                                                     delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                           [alert show];
-                       });
-                   }
-               } else {
-                   dispatch_async(dispatch_get_main_queue(), ^{
-                       [self updateDataSource];
-                       UIAlertView * alert =
-                       [[UIAlertView alloc] initWithTitle:@"URL is unavailable"
-                                                  message:@"Information is NOT updated!"
-                                                 delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                       [alert show];
-                   });
-               }
-           }];
-    
-    [getDataForURLTask resume];
-}
-
-- (NSDictionary*)createDictionaryFromData: (NSData*) data
-{
-    NSError *parseJsonError = nil;
-    
-    NSDictionary *jsonDict =
-    [NSJSONSerialization JSONObjectWithData:data
-                                    options:NSJSONReadingAllowFragments
-                                      error:&parseJsonError];
-    if (!parseJsonError)
-    {
-        return jsonDict;
-    }
-    return nil;
-}
-
-- (void)createDataBaseFromDictionary: (NSDictionary*)jsonDictionary
-{
-    [self createCitiesArray:jsonDictionary];
-    [self createRegionsArray:jsonDictionary];
-    
-    [self updateCitiesArray];
-    [self updateRegionsArray];
-    
-    [self createBanksArray:jsonDictionary];
-    
-    [self updateDataSource];
-}
-
-- (void)createCitiesArray: (NSDictionary*)jsonDictionary
-{
-    OFCoreDataManager *coreDataManager = [OFCoreDataManager sharedInstance];
-    
-    NSDictionary *citiesDictionary= jsonDictionary[@"cities"];
-    NSArray *cityKeys = [citiesDictionary allKeys];
-
-    for (NSString *key in cityKeys) {
-        CityObject *cityObject =
-        [NSEntityDescription insertNewObjectForEntityForName:@"City"
-                                      inManagedObjectContext:
-         coreDataManager.managedObjectContext];
-        
-        cityObject.cityId = key;
-        cityObject.name = [citiesDictionary objectForKey:key];
-    }
-
-    NSError *error = nil;
-    if (![coreDataManager.managedObjectContext save:&error])
-    {
-        NSLog(@"Can't save cities array - %@ %@", error, [error localizedDescription]);
-    }
-}
-
-- (void)createRegionsArray: (NSDictionary*)jsonDictionary
-{
-    OFCoreDataManager *coreDataManager = [OFCoreDataManager sharedInstance];
-    
-    NSDictionary *regionsDictionary = jsonDictionary[@"regions"];
-    NSArray *regionsKeys = [regionsDictionary allKeys];
-
-    for (NSString *key in regionsKeys) {
-        RegionObject * regionObject =
-        [NSEntityDescription insertNewObjectForEntityForName:@"Region"
-                                      inManagedObjectContext:
-         coreDataManager.managedObjectContext];
-        
-        regionObject.regionId = key;
-        regionObject.name = [regionsDictionary objectForKey:key];
-    }
-
-    NSError *error = nil;
-    if (![coreDataManager.managedObjectContext save:&error])
-    {
-        NSLog(@"Can't save regions array - %@ %@", error, [error localizedDescription]);
-    }
-}
-
-- (void)createBanksArray: (NSDictionary*)jsonDictionary
-{
-    OFCoreDataManager *coreDataManager = [OFCoreDataManager sharedInstance];
-    
-    NSArray *allOrganizations = jsonDictionary[@"organizations"];
-
-    for (NSDictionary *organization in allOrganizations) {
-        
-        if ([organization[@"orgType"] integerValue] == 1) {
-            BankObject *bankObject =
-            [NSEntityDescription insertNewObjectForEntityForName:@"Bank"
-                                          inManagedObjectContext:
-             coreDataManager.managedObjectContext];
-            
-            bankObject.title = organization[@"title"];
-            bankObject.address = organization[@"address"];
-            
-            NSInteger intNumber = [organization[@"phone"] longLongValue];
-            NSNumber *number=[NSNumber numberWithLongLong:intNumber];
-            bankObject.phone = number;
-            
-            bankObject.link = organization[@"link"];
-            bankObject.bankId = organization[@"id"];
-            
-            [self createCurrencyExchangeRatesForBank:bankObject
-                                     usingDictionary:organization];
-            
-            [self setRelationshipsForBank: bankObject
-                          usingDictionary: organization];
-        }
-    }
-    
-    NSError *error = nil;
-    if (![coreDataManager.managedObjectContext save:&error])
-    {
-        NSLog(@"Can't save banks array - %@ %@", error, [error localizedDescription]);
-    }
-}
-
-- (void)createCurrencyExchangeRatesForBank: (BankObject*)bankObject
-                           usingDictionary: (NSDictionary*)organization {
-    
-    OFCoreDataManager *coreDataManager = [OFCoreDataManager sharedInstance];
-    NSDictionary *currencyDictionary = organization[@"currencies"];
-    NSArray *keysArray = [currencyDictionary allKeys];
-    
-    for (NSString *key in keysArray) {
-        CurrencyObject *typeOfCurrency =
-        [NSEntityDescription insertNewObjectForEntityForName:@"Currency"
-                                      inManagedObjectContext:
-         coreDataManager.managedObjectContext];
-        
-        typeOfCurrency.abbreviation = key;
-        NSDictionary *ratesDictionary = [currencyDictionary objectForKey:key];
-        typeOfCurrency.bid = @([[ratesDictionary objectForKey:@"bid"] doubleValue]);
-        typeOfCurrency.ask = @([[ratesDictionary objectForKey:@"ask"] doubleValue]);
-        
-        typeOfCurrency.exchangeRateInBank = bankObject;
-        [bankObject.exRatesOfCurrencies addObject:typeOfCurrency];
-    }
-    
-    NSError *error = nil;
-    if (![coreDataManager.managedObjectContext save:&error])
-    {
-        NSLog(@"Can't save currency objects - %@ %@", error, [error localizedDescription]);
-    }
-}
-
-- (void)setRelationshipsForBank: (BankObject*)bankObject
-                usingDictionary: (NSDictionary*)organization {
-    
-    NSString *bankCityId = organization[@"cityId"];
-    NSString *bankRegionId = organization[@"regionId"];
-    
-    for (CityObject *city in self.citiesArray) {
-        if ([city.cityId isEqualToString: bankCityId]) {
-            bankObject.cityOfBank = city;
-            [city.banksInCity addObject:bankObject];
-            break;
-        }
-    }
-    
-    for (RegionObject *region in self.regionsArray) {
-        if ([region.regionId isEqualToString: bankRegionId]) {
-            bankObject.regionOfBank = region;
-            [region.banksInRegion addObject:bankObject];
-            break;
-        }
-    }
-}
-
-#pragma mark - SearchDisplayControllerDelegate
-
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString {
-
-    [self filterContentForSearchText:searchString];
-
-    [self.mySearchController.searchResultsTableView reloadData];
-    
-    return YES;
-}
-
-- (void)filterContentForSearchText:(NSString*)searchString {
+- (void)filterBanksArrayForSearchText:(NSString*)searchString {
 
     NSString *trimmedString =
     [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -414,14 +136,14 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
     [[NSArray alloc] initWithArray:[trimmedString componentsSeparatedByString:@" "]];
     
     NSMutableArray *matchingBanksArray = [NSMutableArray array];
-    NSMutableArray *allBanks = self.banksArray;
+    NSMutableArray *allBanks = self.coreDataManager.banksArray;
     for (BankObject *bank in allBanks) {
         
         NSString *fullBankName = [self getFullNameForBank:bank];
         bool matchesAll = YES;
         
         for (NSString *word in searchItemsArray) {
-            if (![fullBankName containsString:word]) {
+            if (![fullBankName localizedCaseInsensitiveContainsString:word]) {
                 matchesAll = NO;
                 break;
             }
@@ -432,15 +154,17 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
         }
     }
     
-    self.searchedBanksArray = matchingBanksArray;
+    self.coreDataManager.searchedBanksArray = matchingBanksArray;
 }
 
 - (NSString*)getFullNameForBank: (BankObject*)bank
 {
     CityObject *city = bank.cityOfBank;
     RegionObject *region = bank.regionOfBank;
+   // NSLog(@"Link - %@", bank.link);
     
-    return [NSString stringWithFormat:@"%@ %@ %@ %@", bank.title, city.name, region.name, bank.link];
+    return [NSString stringWithFormat:@"%@ %@ %@ %@",
+                                      bank.title, city.name, region.name, bank.link];
 }
 
 #pragma mark - UITableViewDataSource
@@ -467,20 +191,20 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    if (tableView == self.mySearchController.searchResultsTableView) {
-        return self.searchedBanksArray.count;
+    if (self.mySearchController.active) {
+        return self.coreDataManager.searchedBanksArray.count;
     } else {
-        return self.banksArray.count;
+        return self.coreDataManager.banksArray.count;
     }
 }
 
 - (void)configureTileCell:(VisitCardCell*)cell atIndexPath: (NSIndexPath*)indexPath forTableView:(UITableView*)tableView {
     
     BankObject *bank = nil;
-    if (tableView == self.mySearchController.searchResultsTableView) {
-        bank = [self.searchedBanksArray objectAtIndex:indexPath.section];
+    if (self.mySearchController.active) {
+        bank = [self.coreDataManager.searchedBanksArray objectAtIndex:indexPath.section];
     } else {
-        bank = [self.banksArray objectAtIndex:indexPath.section];
+        bank = [self.coreDataManager.banksArray objectAtIndex:indexPath.section];
     }
 
     cell.nameTitle.text = bank.title;
@@ -531,17 +255,18 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 
 #pragma mark - IBActions
 - (void)revealSearchBarAction {
-    self.searchBar.hidden = NO;
-    [self.searchBar becomeFirstResponder];
+    self.navigationController.navigationItem.titleView = self.mySearchController.searchBar;
+    self.mySearchController.searchBar.hidden = NO;
+    [self.mySearchController.searchBar becomeFirstResponder];
 }
 
 - (IBAction)linkButtonAction:(UIButton*)sender{
     
     BankObject *bank;
     if ([self.mySearchController isActive]) {
-        bank = [self.searchedBanksArray objectAtIndex:sender.tag];
+        bank = [self.coreDataManager.searchedBanksArray objectAtIndex:sender.tag];
     } else {
-        bank = [self.banksArray objectAtIndex:sender.tag];
+        bank = [self.coreDataManager.banksArray objectAtIndex:sender.tag];
     }
     
     WebViewController * webViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"webViewController"];
@@ -557,9 +282,9 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 - (IBAction)mapButtonAction:(UIButton*)sender {
     BankObject *bank;
     if ([self.mySearchController isActive]) {
-        bank = [self.searchedBanksArray objectAtIndex:sender.tag];
+        bank = [self.coreDataManager.searchedBanksArray objectAtIndex:sender.tag];
     } else {
-        bank = [self.banksArray objectAtIndex:sender.tag];
+        bank = [self.coreDataManager.banksArray objectAtIndex:sender.tag];
     }
     
     MapViewController *mapViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"mapViewController"];
@@ -572,9 +297,9 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 - (IBAction)callButtonAction:(UIButton*)sender {
     BankObject *bank;
     if ([self.mySearchController isActive]) {
-        bank = [self.searchedBanksArray objectAtIndex:sender.tag];
+        bank = [self.coreDataManager.searchedBanksArray objectAtIndex:sender.tag];
     } else {
-        bank = [self.banksArray objectAtIndex:sender.tag];
+        bank = [self.coreDataManager.banksArray objectAtIndex:sender.tag];
     }
     
     NSString *phoneNumber = [NSString stringWithFormat:@"tel://+380%@",bank.phone];
