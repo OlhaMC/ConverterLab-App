@@ -78,6 +78,7 @@ static NSString * const OFVisitCardCellIdentifier = @"tileCell";
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+    NSLog(@"Main View Controller got memory warning!!!");
 }
 
 - (void)showLoadingInProgress

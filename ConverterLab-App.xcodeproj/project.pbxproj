@@ -10,6 +10,7 @@
 		84031E931C00C23C003ADEC3 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84031E921C00C23C003ADEC3 /* WebViewController.m */; };
 		84031E951C00E0D9003ADEC3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84031E941C00E0D9003ADEC3 /* CoreLocation.framework */; };
 		84031E991C00E1ED003ADEC3 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84031E981C00E1ED003ADEC3 /* MapViewController.m */; };
+		84A13A3A1C64DCB5000B8328 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A13A391C64DCB5000B8328 /* DetailViewController.m */; };
 		84A3D6F81BFF2B7100A30493 /* _DS_Store in Resources */ = {isa = PBXBuildFile; fileRef = 84A3D6C41BFF2B7100A30493 /* _DS_Store */; };
 		84A3D6F91BFF2B7100A30493 /* ic_arrow_down.png in Resources */ = {isa = PBXBuildFile; fileRef = 84A3D6C51BFF2B7100A30493 /* ic_arrow_down.png */; };
 		84A3D6FA1BFF2B7100A30493 /* ic_arrow_down@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 84A3D6C61BFF2B7100A30493 /* ic_arrow_down@2x.png */; };
@@ -95,6 +96,8 @@
 		84031E941C00E0D9003ADEC3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		84031E971C00E1ED003ADEC3 /* MapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		84031E981C00E1ED003ADEC3 /* MapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
+		84A13A381C64DCB5000B8328 /* DetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
+		84A13A391C64DCB5000B8328 /* DetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		84A3D6C41BFF2B7100A30493 /* _DS_Store */ = {isa = PBXFileReference; lastKnownFileType = file; path = _DS_Store; sourceTree = "<group>"; };
 		84A3D6C51BFF2B7100A30493 /* ic_arrow_down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_arrow_down.png; sourceTree = "<group>"; };
 		84A3D6C61BFF2B7100A30493 /* ic_arrow_down@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ic_arrow_down@2x.png"; sourceTree = "<group>"; };
@@ -212,6 +215,15 @@
 				84031E981C00E1ED003ADEC3 /* MapViewController.m */,
 			);
 			path = MapViewController;
+			sourceTree = "<group>";
+		};
+		84A13A371C64DC44000B8328 /* DetailViewController */ = {
+			isa = PBXGroup;
+			children = (
+				84A13A381C64DCB5000B8328 /* DetailViewController.h */,
+				84A13A391C64DCB5000B8328 /* DetailViewController.m */,
+			);
+			path = DetailViewController;
 			sourceTree = "<group>";
 		};
 		84A3D6C31BFF2B7100A30493 /* icons */ = {
@@ -337,6 +349,7 @@
 		84B231C31BFA78FF001608D7 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				84A13A371C64DC44000B8328 /* DetailViewController */,
 				84031E961C00E1C3003ADEC3 /* MapViewController */,
 				84031E901C00C207003ADEC3 /* WebViewController */,
 				84B231CD1BFA79B9001608D7 /* CoreDataManager */,
@@ -595,6 +608,7 @@
 				84B751BA1BFC81C500FBB3EF /* CurrencyObject.m in Sources */,
 				84B231C71BFA78FF001608D7 /* MainViewController.m in Sources */,
 				84B231D01BFA7A19001608D7 /* OFCoreDataManager.m in Sources */,
+				84A13A3A1C64DCB5000B8328 /* DetailViewController.m in Sources */,
 				84B751B71BFC81A600FBB3EF /* RegionObject.m in Sources */,
 				84B2319E1BFA76DC001608D7 /* AppDelegate.m in Sources */,
 				84B2319B1BFA76DC001608D7 /* main.m in Sources */,
