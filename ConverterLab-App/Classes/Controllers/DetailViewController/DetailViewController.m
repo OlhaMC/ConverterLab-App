@@ -49,15 +49,24 @@
     }
 }
 
-/*
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+    
+    static NSString * const OFInfoCellIdentifier = @"InfoCell";
+    static NSString * const OFCurrencyCellIdentifier = @"CurrencyCell";
+    NSString* identifier = nil;
+    if (indexPath.section == 0) {
+        identifier = OFInfoCellIdentifier;
+    } else {
+        identifier = OFCurrencyCellIdentifier;
+    }
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier forIndexPath:indexPath];
     
     // Configure the cell...
     
     return cell;
 }
-*/
+
 
 /*
 // Override to support conditional editing of the table view.
